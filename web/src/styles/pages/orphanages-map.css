@@ -8,7 +8,7 @@
 
 #page-map aside {
   width: 440px;
-  background: linear-gradient(329.54deg, #29B6D1 0%, #00C7C7 100%);
+  background: linear-gradient(329.54deg, #29b6d1 0%, #00c7c7 100%);
   padding: 80px;
 
   display: flex;
@@ -55,19 +55,53 @@
   justify-content: center;
   align-items: center;
 
-  transition: background .2s;
+  transition: background 0.2s;
 }
 
 #page-map .create-orphanage:hover {
   background: #17d6eb;
 }
 
+#page-map .map-popup .leaflet-popup-content-wrapper {
+  background: #fff;
+  box-shadow: 0 0 40px rgba(23, 142, 166, 0.16);
+  border-radius: 20px;
+}
+
+#page-map .map-popup .leaflet-popup-content {
+  color: #0089a5;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 8px 12px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#page-map .map-popup .leaflet-popup-content a {
+  width: 40px;
+  height: 40px;
+
+  background: #15c3d6;
+  box-shadow: 17px 27px 40px rgba(23, 142, 166, 0.16);
+  border-radius: 12px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#page-map .map-popup .leaflet-popup-tip-container {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   #page-map aside {
     width: 320px;
-    background: linear-gradient(329.54deg, #29B6D1 0%, #00C7C7 100%);
+    background: linear-gradient(329.54deg, #29b6d1 0%, #00c7c7 100%);
     padding: 40px;
-  
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -75,19 +109,19 @@
 
   #page-map .create-orphanage {
     position: absolute;
-  
+
     right: 20px;
     bottom: 20px;
-  
+
     width: 64px;
     height: 64px;
     background: #15c3d6;
     border-radius: 20px;
-  
+
     display: flex;
     justify-content: center;
     align-items: center;
-  
-    transition: background .2s;
+
+    transition: background 0.2s;
   }
 }
