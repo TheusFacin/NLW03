@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from 'react'
-import {
-  StyleSheet,
-  View,
-  Dimensions,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native'
+import { StyleSheet, View, Dimensions, Text } from 'react-native'
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { Feather } from '@expo/vector-icons'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { RectButton } from 'react-native-gesture-handler'
 
 import mapMarker from '../assets/map-marker.png'
-import { useNavigation } from '@react-navigation/native'
+import Loading from '../components/Loading'
+import api from '../services/api'
+
+interface Orphanage {
+  id: number
+  name: string
+  latitude: number
+  longitude: number
+}
 
 export default function OrphanagesMap() {
   const navigation = useNavigation()
 
-  const [latitude, setLatitude] = useState(0)
-  const [longitude, setLongitude] = useState(0)
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 })
+  const [orphanages, setOrphanages] = useState<Orphanage[]>([])
 
   // get location
   useEffect(() => {
@@ -35,69 +37,81 @@ export default function OrphanagesMap() {
         coords: { latitude, longitude },
       } = await Location.getCurrentPositionAsync({})
 
-      setLatitude(latitude)
-      setLongitude(longitude)
+      setLocation({ latitude, longitude })
     })()
   }, [])
 
-  if (latitude === 0 && longitude === 0) {
-    return (
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: Dimensions.get('window').height,
-        }}
-      >
-        <StatusBar backgroundColor="#000" />
-        <ActivityIndicator size="large" color="#15c3d6" />
-        <Text style={{ fontSize: 16, marginTop: 20 }}>Carregando mapa...</Text>
-      </View>
-    )
+  // get orphanages
+  useFocusEffect(() => {
+    ;(async () => {
+      const response = await api.get('/orphanages')
+      setOrphanages(response.data as Orphanage[])
+    })()
+  })
+
+  if (location.latitude === 0 && location.longitude === 0)
+    return <Loading text="Carregando mapa..." />
+
+  function handleNavigateToOrphanageDetails(id: number) {
+    navigation.navigate('OrphanageDetails', { id })
   }
 
-  function handleNavigateToOrphanageDetails() {
-    navigation.navigate('OrphanageDetails')
+  function handleNavigateToCreateOrphanage() {
+    navigation.navigate('SelectMapPosition', { location })
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#000" />
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
-          latitude,
-          longitude,
+          ...location,
           latitudeDelta: 0.008,
           longitudeDelta: 0.008,
         }}
       >
-        <Marker
-          icon={mapMarker}
-          coordinate={{ latitude, longitude }}
-          calloutAnchor={{
-            x: 2.7,
-            y: 0.8,
-          }}
-        >
-          <Callout tooltip onPress={handleNavigateToOrphanageDetails}>
-            <View style={styles.calloutContainer}>
-              <Text style={styles.calloutText}>Lar das meninas</Text>
-            </View>
-          </Callout>
-        </Marker>
+        {console.log(orphanages)}
+        {orphanages.map((orphanage) => (
+          <Marker
+            key={orphanage.id}
+            icon={mapMarker}
+            coordinate={{
+              latitude: orphanage.latitude,
+              longitude: orphanage.longitude,
+            }}
+            calloutAnchor={{
+              x: 2.7,
+              y: 0.8,
+            }}
+          >
+            <Callout
+              tooltip
+              onPress={() => handleNavigateToOrphanageDetails(orphanage.id)}
+            >
+              <View style={styles.calloutContainer}>
+                <Text style={styles.calloutText}>{orphanage.name}</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>2 orfanatos encontrados</Text>
+        <Text style={styles.footerText}>
+          {orphanages.length === 0
+            ? 'Nenhum orfanato encontrado'
+            : orphanages.length === 1
+            ? '1 orfanato encontrado'
+            : `${orphanages.length} orfanatos encontrados`}
+        </Text>
 
-        <TouchableOpacity
+        <RectButton
           style={styles.createOrphanageButton}
-          onPress={() => {}}
+          onPress={handleNavigateToCreateOrphanage}
         >
           <Feather name="plus" size={20} color="#fff" />
-        </TouchableOpacity>
+        </RectButton>
       </View>
     </View>
   )
