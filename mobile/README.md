@@ -1,6 +1,6 @@
-![web](../.github/web_cover.png)
+![web](../.github/mobile_cover.png)
 
-Esse é o front-end web do projeto Happy, desenvolvido em React
+Esse é o app mobile do projeto Happy, desenvolvido em React Native
 
 ---
 
